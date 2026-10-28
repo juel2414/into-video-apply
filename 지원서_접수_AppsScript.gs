@@ -4,6 +4,7 @@
  * 하는 일
  *  1) '지원자 목록' 시트에 한 줄씩 추가 (접수 시각, 접수 번호, 각 문항, PDF 링크)
  *  2) 지원자별 A4 지원서 PDF를 내 드라이브 '인투마케팅 영상분야 지원서' 폴더에 저장
+ *  3) 운영자 이메일로 지원서 PDF를 첨부해 알림 발송
  *
  * 설치
  *  - 구글 스프레드시트를 새로 만들고 [확장 프로그램 > Apps Script]에 이 코드를 붙여 넣는다.
@@ -17,6 +18,8 @@ var TIMEZONE = 'Asia/Seoul';
 var AGE_BASE_DATE = '2026-11-11'; // 만 나이 판단 기준일: 교육 시작일
 var MIN_AGE = 16;
 var MAX_MOTIVATION = 800;
+// 지원서를 받을 이메일. 비워 두면 스크립트를 배포한 계정(나)의 Gmail로 보낸다. 여러 명은 쉼표로 구분
+var NOTIFY_EMAIL = '';
 
 var HEADERS = [
   '접수 시각', '접수 번호', '이름', '연락처', '생년월일', '리뉴젠 입소 날짜',
@@ -55,12 +58,13 @@ function doPost(e) {
     return json_({ ok: false, error: 'busy' });
   }
 
+  var now = new Date();
+  var app = clean_(data);
+  var receiptNo, pdf;
   try {
-    var now = new Date();
     var sheet = getSheet_();
-    var receiptNo = nextReceiptNo_(sheet, now);
-    var app = clean_(data);
-    var pdf = createPdf_(app, receiptNo, now);
+    receiptNo = nextReceiptNo_(sheet, now);
+    pdf = createPdf_(app, receiptNo, now);
 
     sheet.appendRow([
       Utilities.formatDate(now, TIMEZONE, 'yyyy-MM-dd HH:mm:ss'),
@@ -78,14 +82,21 @@ function doPost(e) {
       pdf.getUrl()
     ].map(safeCell_));
     SpreadsheetApp.flush();
-
-    return json_({ ok: true, receiptNo: receiptNo });
   } catch (err) {
     console.error(err);
     return json_({ ok: false, error: 'server' });
   } finally {
     lock.releaseLock();
   }
+
+  // 메일은 저장이 끝난 뒤 보낸다. 메일이 실패해도 지원은 접수된 것으로 처리
+  try {
+    sendNotice_(app, receiptNo, now, pdf);
+  } catch (err) {
+    console.error('메일 발송 실패: ' + err);
+  }
+
+  return json_({ ok: true, receiptNo: receiptNo });
 }
 
 /* ---------- 검증 ---------- */
@@ -294,6 +305,51 @@ function createPdf_(app, receiptNo, now) {
   var pdf = getFolder_().createFile(docFile.getAs(MimeType.PDF).setName(title + '.pdf'));
   docFile.setTrashed(true); // PDF로 만든 뒤 임시 문서는 휴지통으로
   return pdf;
+}
+
+/* ---------- 이메일 ---------- */
+
+function sendNotice_(app, receiptNo, now, pdf) {
+  var to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
+  if (!to) return;
+
+  var esc = function (v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var rows = [
+    ['접수 번호', receiptNo],
+    ['접수 시각', Utilities.formatDate(now, TIMEZONE, 'yyyy-MM-dd HH:mm')],
+    ['이름', app.name],
+    ['연락처', app.phone],
+    ['생년월일', korDate_(app.birth)],
+    ['리뉴젠 입소', korDate_(app.renewgen)],
+    ['영상 경험', app.experience],
+    ['영상 링크', app.videoLink || '없음'],
+    ['담당 사역자', app.minister]
+  ];
+  var html =
+    '<div style="font-family:sans-serif;color:#1a1d27;max-width:600px">' +
+    '<h2 style="color:#1c2752;margin:0 0 12px">영상분야 지원서가 도착했어요</h2>' +
+    '<table style="border-collapse:collapse;width:100%;font-size:14px">' +
+    rows.map(function (r) {
+      return '<tr><th style="text-align:left;background:#eef0f6;color:#1c2752;padding:8px 10px;border:1px solid #d9dce6;width:110px">' +
+        esc(r[0]) + '</th><td style="padding:8px 10px;border:1px solid #d9dce6">' + esc(r[1]) + '</td></tr>';
+    }).join('') +
+    '</table>' +
+    '<h3 style="color:#1c2752;margin:20px 0 8px;font-size:15px">지원 동기</h3>' +
+    '<div style="white-space:pre-wrap;line-height:1.7;font-size:14px;background:#f6f7fa;padding:12px 14px;border-radius:8px">' +
+    esc(app.motivation) + '</div>' +
+    '<p style="font-size:13px;color:#6b7084;margin-top:20px">지원서 PDF를 첨부했어요. ' +
+    '<a href="' + esc(pdf.getUrl()) + '">드라이브에서 열기</a></p>' +
+    '</div>';
+
+  MailApp.sendEmail({
+    to: to,
+    subject: '[영상분야 지원] ' + app.name + ' · ' + receiptNo,
+    htmlBody: html,
+    name: '인투마케팅 지원서 접수',
+    attachments: [pdf.getBlob()]
+  });
 }
 
 /* ---------- 공통 ---------- */
