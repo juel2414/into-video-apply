@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인투마케팅 영상분야 지원서</title>
+<meta name="description" content="배우고, 만들고, 수익까지 내는 영상 마케터 과정 · 단 3명 모집 · 11월 10일 마감">
+<meta name="theme-color" content="#1c2752">
+<meta property="og:title" content="인투마케팅 영상분야 훈련생 지원서">
+<meta property="og:description" content="배우고, 만들고, 수익까지 내는 영상 마케터 과정 · 단 3명 모집 · 11월 10일 마감">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 상단 브랜드 밴드 → 모집 안내 카드 → 단계형 설문 카드 */
+:root{
+  --navy:#1c2752;
+  --navy-soft:#2e3b6e;
+  --ink:#1a1d27;
+  --muted:#6b7084;
+  --line:#d9dce6;
+  --paper:#ffffff;
+  --ground:#eef0f5;
+  --accent:#4a8fa0;
+  --err:#c2410c;
+  --display:"Black Han Sans","Noto Sans KR",sans-serif;
+  --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;word-break:keep-all}
+button,input,textarea{font:inherit;color:inherit}
+
+/* 상단 밴드 */
+.band{background:var(--navy);color:#fff;padding:36px 16px 72px;text-align:center}
+.band .brand{font-size:13px;letter-spacing:.2em;opacity:.75;font-weight:500}
+.band h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,7vw,44px);line-height:1.15;margin:10px 0 8px;text-wrap:balance}
+.band p{margin:0;opacity:.85;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.chips span{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 12px;font-size:13px}
+
+/* 카드 */
+.wrap{max-width:620px;margin:-48px auto 48px;padding:0 16px}
+.card{background:var(--paper);border-radius:14px;box-shadow:0 10px 30px rgba(28,39,82,.12);padding:28px 24px}
+.card + .card{margin-top:16px}
+
+/* 모집 안내 */
+.info{margin:0}
+.info div{display:flex;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.info div:first-child{padding-top:0}
+.info div:last-child{border-bottom:0;padding-bottom:0}
+.info dt{flex:0 0 68px;color:var(--muted);font-size:14px}
+.info dd{margin:0;font-size:15px;font-weight:500}
+.info dd small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.info dd.hl{color:var(--navy);font-weight:700}
+
+/* 설문 */
+.progress{display:flex;gap:6px;margin-bottom:22px}
+.progress i{flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .25s}
+.progress i.on{background:var(--navy)}
+.step-label{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:.06em}
+.step h2{font-size:22px;margin:4px 0 20px;font-weight:900}
+.q{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.q .t{font-weight:700}
+.q .req{color:var(--err);margin-left:2px}
+.q .hint{font-size:13px;color:var(--muted);margin-top:-4px}
+.q input[type=text],.q input[type=tel],.q input[type=date],.q input[type=url],.q textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;outline:none;transition:border-color .2s;font-size:16px}
+.q input[type=date]{min-height:50px;-webkit-appearance:none;appearance:none}
+.q textarea{min-height:180px;resize:vertical}
+.q input:focus,.q textarea:focus{border-color:var(--navy)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .2s,background .2s}
+.opt:has(input:checked){border-color:var(--navy);background:#f3f5fb}
+.opt input{accent-color:var(--navy);width:18px;height:18px;margin:0;flex:0 0 auto}
+.consent{background:#f6f7fa;border-radius:10px;padding:14px 16px;font-size:14px;color:var(--muted)}
+.consent b{color:var(--ink);margin-right:6px}
+.error{color:var(--err);font-size:13px;display:none}
+.q.bad .error{display:block}
+.q.bad input,.q.bad textarea,.q.bad .opt{border-color:var(--err)}
+.nav{display:flex;gap:10px;margin-top:8px}
+.btn{flex:1;border:0;border-radius:10px;padding:14px;font-weight:700;cursor:pointer}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary:hover{background:var(--navy-soft)}
+.btn.ghost{background:#fff;border:1.5px solid var(--line)}
+.btn:focus-visible,.opt:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.submit-err{color:var(--err);font-size:14px;margin:0 0 12px}
+.btn:disabled{opacity:.6;cursor:wait}
+.counter{font-size:12px;color:var(--muted);text-align:right}
+.counter.full{color:var(--err);font-weight:700}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* 완료 화면 */
+.done-head{text-align:center;padding:20px 0 8px}
+.done-head .check{width:60px;height:60px;margin:0 auto 16px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center}
+.done-head h2{font-size:22px;font-weight:900;margin:0 0 6px}
+.done-head p{margin:0;color:var(--muted);font-size:15px}
+
+footer{text-align:center;font-size:13px;color:var(--muted);margin-top:20px}
+
+[hidden]{display:none!important}
+
+@media (max-width:480px){
+  .card{padding:22px 18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="brand">INTO MARKETING</div>
+  <h1>영상분야 훈련생 지원서</h1>
+  <p>배우고, 만들고, 수익까지 내는 영상 마케터 과정</p>
+  <div class="chips">
+    <span>교육 11.11 ~ 11.25 · 12차시</span>
+    <span>마감 11.10</span>
+    <span>단 3명 모집</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" aria-label="모집 안내">
+    <dl class="info">
+      <div><dt>교육 기간</dt><dd>2026년 11월 11일 ~ 11월 25일 · 총 12차시<small>시간·장소는 추후 공지</small></dd></div>
+      <div><dt>지원 마감</dt><dd class="hl">11월 10일</dd></div>
+      <div><dt>모집 인원</dt><dd>단 3명</dd></div>
+      <div><dt>지원 자격</dt><dd>16세 이상 / 리뉴젠 수료자</dd></div>
+      <div><dt>문의</dt><dd>주엘 간사</dd></div>
+    </dl>
+  </section>
+
+  <div class="card" id="card">
+
+    <form id="form" novalidate>
+      <div class="progress" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+      <!-- STEP 1 -->
+      <section class="step" data-step="0">
+        <div class="step-label">STEP 1 / 4</div>
+        <h2>기본 정보를 알려주세요</h2>
+        <div class="q" data-req>
+          <label class="t" for="name">이름<span class="req">*</span></label>
+          <input type="text" id="name" name="name" autocomplete="name" placeholder="홍길동" maxlength="30">
+          <div class="error">이름을 입력해 주세요.</div>
+        </div>
+        <div class="q" data-req data-type="tel">
+          <label class="t" for="phone">연락처<span class="req">*</span></label>
+          <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13">
+          <div class="error">010-0000-0000 형식으로 입력해 주세요.</div>
+        </div>
+        <div class="q" data-req data-type="age">
+          <label class="t" for="birth">생년월일<span class="req">*</span></label>
+          <input type="date" id="birth" name="birth" min="1940-01-01">
+          <div class="hint">만 16세 이상 지원할 수 있어요.</div>
+          <div class="error">생년월일을 선택해 주세요.</div>
+        </div>
+        <div class="q" data-req data-type="past">
+          <label class="t" for="entry">리뉴젠 입소 날짜<span class="req">*</span></label>
+          <input type="date" id="entry" name="entry" min="2000-01-01">
+          <div class="hint">정확한 날짜가 기억나지 않으면 대략적인 시기로 선택해 주세요.</div>
+          <div class="error">입소 날짜를 선택해 주세요.</div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step" data-step="1" hidden>
+        <div class="step-label">STEP 2 / 4</div>
+        <h2>영상 경험이 궁금해요</h2>
+        <div class="q" data-req data-type="radio" data-name="exp">
+          <span class="t">영상 촬영·편집 경험<span class="req">*</span></span>
+          <div class="opts" role="radiogroup">
+            <label class="opt"><input type="radio" name="exp" value="전혀 없어요">전혀 없어요</label>
+            <label class="opt"><input type="radio" name="exp" value="스마트폰으로 가볍게 해봤어요">스마트폰으로 가볍게 해봤어요</label>
+            <label class="opt"><input type="radio" name="exp" value="편집 프로그램(캡컷, 프리미어 등)을 써봤어요">편집 프로그램(캡컷, 프리미어 등)을 써봤어요</label>
+            <label class="opt"><input type="radio" name="exp" value="직접 만든 작품이나 채널이 있어요">직접 만든 작품이나 채널이 있어요</label>
+          </div>
+          <div class="error">하나를 선택해 주세요.</div>
+        </div>
+        <div class="q">
+          <label class="t" for="link">직접 만든 영상 링크</label>
+          <input type="url" id="link" name="link" inputmode="url" placeholder="https://" maxlength="500">
+          <div class="hint">없어도 괜찮아요!</div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step" data-step="2" hidden>
+        <div class="step-label">STEP 3 / 4</div>
+        <h2>지원 동기를 들려주세요</h2>
+        <div class="q" data-req>
+          <label class="t" for="motive">지원 동기<span class="req">*</span></label>
+          <div class="hint">이 과정에 지원한 이유와 영상으로 해보고 싶은 것을 자유롭게 적어주세요.</div>
+          <textarea id="motive" name="motive" maxlength="800"></textarea>
+          <div class="counter" id="counter"><span id="cnt">0</span> / 800자</div>
+          <div class="error">지원 동기를 입력해 주세요.</div>
+        </div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="step" data-step="3" hidden>
+        <div class="step-label">STEP 4 / 4</div>
+        <h2>마지막으로 확인할게요</h2>
+        <div class="q" data-req>
+          <label class="t" for="pastor">패밀리 담당 사역자<span class="req">*</span></label>
+          <input type="text" id="pastor" name="pastor" placeholder="담당 사역자 이름" maxlength="30">
+          <div class="error">담당 사역자 이름을 입력해 주세요.</div>
+        </div>
+        <div class="q" data-req data-type="check">
+          <span class="t">담당 사역자에게 지원 사실을 알렸나요?<span class="req">*</span></span>
+          <label class="opt"><input type="checkbox" id="notified" name="notified">네, 알렸어요</label>
+          <div class="error">담당 사역자에게 먼저 알린 뒤 제출해 주세요.</div>
+        </div>
+        <div class="q" data-req data-type="check">
+          <span class="t">개인정보 수집·이용 동의<span class="req">*</span></span>
+          <div class="consent">
+            <b>수집 항목</b>이름, 연락처, 생년월일, 리뉴젠 입소 날짜, 담당 사역자<br>
+            <b>이용 목적</b>훈련생 선발 및 교육 안내<br>
+            <b>보관 기간</b>선발 종료 후 6개월
+          </div>
+          <label class="opt"><input type="checkbox" id="agree" name="agree">위 내용에 동의합니다</label>
+          <div class="error">동의해야 지원할 수 있어요.</div>
+        </div>
+      </section>
+
+      <!-- 스팸 방지용 숨김 칸: 사람은 보지 못하고 봇만 채움 -->
+      <div class="hp" aria-hidden="true">
+        <input type="text" name="website" tabindex="-1" autocomplete="off">
+      </div>
+      <p class="submit-err" id="submitErr" role="alert" hidden></p>
+      <div class="nav">
+        <button type="button" class="btn ghost" id="prev" hidden>이전</button>
+        <button type="submit" class="btn primary" id="next">다음</button>
+      </div>
+    </form>
+
+    <!-- 완료 -->
+    <section id="done" hidden>
+      <div class="done-head">
+        <div class="check" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h2>지원이 완료됐어요.</h2>
+        <p>선발 결과는 개별 연락으로 안내해 드릴게요.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>문의 · 주엘 간사 &nbsp;|&nbsp; 인투마케팅</footer>
+</main>
+
+<script>
+(function(){
+  // ▼ 구글 Apps Script 웹 앱 주소(…/exec)를 따옴표 안에 붙여 넣으세요
+  const SCRIPT_URL = '';
+  // 만 나이 판단 기준일: 교육 시작일 (Apps Script의 AGE_BASE_DATE와 같게)
+  const AGE_BASE_DATE = '2026-11-11';
+  const MIN_AGE = 16;
+
+  const form = document.getElementById('form');
+  const steps = [...document.querySelectorAll('.step')];
+  const bars = [...document.querySelectorAll('.progress i')];
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const done = document.getElementById('done');
+  let cur = 0;
+
+  const pad = n => String(n).padStart(2,'0');
+  const now = new Date();
+  const today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('birth').max = today;
+  document.getElementById('entry').max = today;
+
+  function show(i){
+    cur = i;
+    steps.forEach((s,k)=> s.hidden = k!==i);
+    bars.forEach((b,k)=> b.classList.toggle('on', k<=i));
+    prev.hidden = i===0;
+    next.textContent = i===steps.length-1 ? '지원서 제출하기' : '다음';
+    errBox.hidden = true;
+    const top = document.getElementById('card').getBoundingClientRect().top + window.scrollY - 12;
+    if (window.scrollY > top) window.scrollTo({top,behavior:'smooth'});
+  }
+
+  // 'YYYY-MM-DD' 문자열끼리 비교해 시간대 영향 없이 만 나이 계산
+  function age(ymd){
+    const [by,bm,bd] = ymd.split('-').map(Number);
+    const [ty,tm,td] = AGE_BASE_DATE.split('-').map(Number);
+    let a = ty-by;
+    if (tm<bm || (tm===bm && td<bd)) a--;
+    return a;
+  }
+
+  // 오류 문구를 상황에 맞게 바꾸고, 다시 고치면 원래 문구로 돌아가게 한다
+  document.querySelectorAll('.q .error').forEach(e=> e.dataset.base = e.textContent);
+  function setErr(q, msg){
+    const e = q.querySelector('.error');
+    e.textContent = msg || e.dataset.base;
+  }
+
+  function validate(step){
+    let ok = true;
+    step.querySelectorAll('.q[data-req]').forEach(q=>{
+      let good = true, msg = '';
+      const type = q.dataset.type;
+      if (type==='radio') good = !!form.querySelector(`input[name="${q.dataset.name}"]:checked`);
+      else if (type==='check') good = q.querySelector('input').checked;
+      else {
+        const v = q.querySelector('input,textarea').value.trim();
+        good = v.length>0;
+        if (good && type==='tel') good = /^010-\d{4}-\d{4}$/.test(v);
+        if (good && (type==='age' || type==='past') && v > today) { good = false; msg = '오늘 이전 날짜를 선택해 주세요.'; }
+        if (good && type==='age' && age(v) < MIN_AGE) { good = false; msg = '이 과정은 만 16세 이상부터 지원할 수 있어요.'; }
+      }
+      setErr(q, msg);
+      q.classList.toggle('bad', !good);
+      if (!good && ok){
+        ok = false;
+        const f = q.querySelector('input,textarea');
+        q.scrollIntoView({behavior:'smooth',block:'center'});
+        f && f.focus({preventScroll:true});
+      }
+    });
+    return ok;
+  }
+
+  const clearBad = e=>{ const q = e.target.closest('.q'); if (q) q.classList.remove('bad'); };
+  form.addEventListener('input', clearBad);
+  form.addEventListener('change', clearBad);
+
+  // 연락처 자동 하이픈: 010-0000-0000
+  const phone = document.getElementById('phone');
+  phone.addEventListener('input', ()=>{
+    const d = phone.value.replace(/\D/g,'').slice(0,11);
+    phone.value = d.length<4 ? d : d.length<8 ? d.slice(0,3)+'-'+d.slice(3) : d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7);
+  });
+
+  const motive = document.getElementById('motive');
+  const counter = document.getElementById('counter');
+  motive.addEventListener('input', ()=>{
+    document.getElementById('cnt').textContent = motive.value.length;
+    counter.classList.toggle('full', motive.value.length >= 800);
+  });
+
+  prev.addEventListener('click', ()=> show(cur-1));
+
+  const errBox = document.getElementById('submitErr');
+  let sending = false;
+
+  const normalizeLink = s => !s ? '' : /^https?:\/\//i.test(s) ? s : 'https://' + s;
+
+  form.addEventListener('submit', async e=>{
+    e.preventDefault();
+    if (sending) return;
+    if (!validate(steps[cur])) return;
+    if (cur < steps.length-1) { show(cur+1); return; }
+    errBox.hidden = true;
+    if (!SCRIPT_URL) { errBox.textContent = '아직 접수 준비 중이에요. 주엘 간사에게 문의해 주세요.'; errBox.hidden = false; return; }
+    const f = new FormData(form);
+    const data = {
+      name: f.get('name').trim(), phone: f.get('phone').trim(),
+      birth: f.get('birth'), entry: f.get('entry'), exp: f.get('exp'),
+      link: normalizeLink((f.get('link')||'').trim()), motive: f.get('motive').trim(),
+      pastor: f.get('pastor').trim(),
+      notified: document.getElementById('notified').checked,
+      agree: document.getElementById('agree').checked,
+      website: f.get('website') || ''
+    };
+    sending = true; next.disabled = true; prev.disabled = true; next.textContent = '제출하는 중...';
+    try {
+      // Content-Type 헤더 없이 문자열로 보내 CORS 사전 요청(preflight)을 피한다
+      const res = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(data) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'fail');
+      form.hidden = true; done.hidden = false;
+      document.getElementById('card').scrollIntoView({behavior:'smooth',block:'start'});
+    } catch(err) {
+      errBox.textContent = '제출하지 못했어요. 인터넷 연결을 확인하고 다시 눌러주세요. 계속 안 되면 주엘 간사에게 문의해 주세요.';
+      errBox.hidden = false;
+      next.textContent = '지원서 제출하기';
+    } finally {
+      sending = false; next.disabled = false; prev.disabled = false;
+    }
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
