@@ -194,40 +194,64 @@ function korDate_(ymd) {
   return p[0] + '년 ' + Number(p[1]) + '월 ' + Number(p[2]) + '일';
 }
 
+// A4 한 장에 들어가게 만든다. 지원 동기가 길어 넘치면 글자와 간격을 줄여 다시 만든다
 function createPdf_(app, receiptNo, now) {
+  var title = receiptNo + '_' + app.name + '_지원서';
+  var scales = [1, 0.9, 0.8, 0.72];
+  var blob;
+  for (var i = 0; i < scales.length; i++) {
+    blob = buildPdfBlob_(app, receiptNo, now, title, scales[i]);
+    if (pdfPages_(blob) <= 1) break;
+  }
+  return getFolder_().createFile(blob.setName(title + '.pdf'));
+}
+
+function pdfPages_(blob) {
+  var m = blob.getDataAsString('ISO-8859-1').match(/\/Type\s*\/Page[^s]/g);
+  return m ? m.length : 1;
+}
+
+function buildPdfBlob_(app, receiptNo, now, title, k) {
   var NAVY = '#1c2752';
   var LABEL_BG = '#eef0f6';
-  var title = receiptNo + '_' + app.name + '_지원서';
+  var pt = function (v) { return Math.round(v * k * 10) / 10; };
 
   var doc = DocumentApp.create(title);
   var body = doc.getBody();
   body.setPageWidth(595.28).setPageHeight(841.89); // A4
-  body.setMarginTop(50).setMarginBottom(50).setMarginLeft(56).setMarginRight(56);
+  body.setMarginTop(pt(36)).setMarginBottom(pt(30)).setMarginLeft(54).setMarginRight(54);
   body.clear();
 
   var base = {};
   base[DocumentApp.Attribute.FONT_FAMILY] = 'Noto Sans KR';
-  base[DocumentApp.Attribute.FONT_SIZE] = 10;
+  base[DocumentApp.Attribute.FONT_SIZE] = pt(10);
   base[DocumentApp.Attribute.FOREGROUND_COLOR] = '#1a1d29';
   body.setAttributes(base);
 
   var no = body.getParagraphs()[0];
   no.setText('접수 번호  ' + receiptNo); // setText는 아무것도 돌려주지 않아 이어 쓸 수 없다
   no.setAlignment(DocumentApp.HorizontalAlignment.RIGHT)
-    .editAsText().setFontSize(8).setForegroundColor('#6b7088');
+    .editAsText().setFontSize(pt(8)).setForegroundColor('#6b7088');
 
   var h = body.appendParagraph('지 원 서');
-  h.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(4).setSpacingAfter(4);
-  h.editAsText().setFontSize(24).setBold(true).setForegroundColor(NAVY);
+  h.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(0).setSpacingAfter(pt(2));
+  h.editAsText().setFontSize(pt(22)).setBold(true).setForegroundColor(NAVY);
 
   var sub = body.appendParagraph('인투마케팅 영상분야 훈련생 · 배우고, 만들고, 수익까지 내는 영상 마케터 과정');
-  sub.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(14);
-  sub.editAsText().setFontSize(9).setBold(false).setForegroundColor('#6b7088');
+  sub.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(pt(6));
+  sub.editAsText().setFontSize(pt(9)).setBold(false).setForegroundColor('#6b7088');
 
   function section(text) {
     var p = body.appendParagraph(text);
-    p.setSpacingBefore(12).setSpacingAfter(4);
-    p.editAsText().setFontSize(11).setBold(true).setForegroundColor(NAVY);
+    p.setSpacingBefore(pt(8)).setSpacingAfter(pt(3));
+    p.editAsText().setFontSize(pt(11)).setBold(true).setForegroundColor(NAVY);
+  }
+
+  function tight(cell, pad) {
+    cell.setPaddingTop(pt(pad)).setPaddingBottom(pt(pad)).setPaddingLeft(7).setPaddingRight(7);
+    for (var i = 0; i < cell.getNumChildren(); i++) {
+      cell.getChild(i).asParagraph().setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1.15);
+    }
   }
 
   function table(rows, labelWidth) {
@@ -237,8 +261,8 @@ function createPdf_(app, receiptNo, now) {
       var row = t.getRow(r);
       for (var c = 0; c < row.getNumCells(); c++) {
         var cell = row.getCell(c);
-        cell.setPaddingTop(5).setPaddingBottom(5).setPaddingLeft(7).setPaddingRight(7);
-        cell.editAsText().setFontSize(10).setBold(false).setForegroundColor('#1a1d29');
+        tight(cell, 4);
+        cell.editAsText().setFontSize(pt(10)).setBold(false).setForegroundColor('#1a1d29');
         if (c % 2 === 0 && row.getNumCells() > 1) {
           cell.setBackgroundColor(LABEL_BG);
           cell.editAsText().setBold(true).setForegroundColor(NAVY);
@@ -265,15 +289,14 @@ function createPdf_(app, receiptNo, now) {
   var mt = body.appendTable([[app.motivation]]);
   mt.setBorderColor('#9aa0b8').setBorderWidth(0.5);
   var mc = mt.getCell(0, 0);
-  mc.setPaddingTop(8).setPaddingBottom(8).setPaddingLeft(9).setPaddingRight(9);
-  mc.editAsText().setFontSize(10).setBold(false).setForegroundColor('#1a1d29');
-  mc.getChild(0).asParagraph().setLineSpacing(1.5);
+  tight(mc, 7);
+  mc.editAsText().setFontSize(pt(10)).setBold(false).setForegroundColor('#1a1d29');
+  mc.getChild(0).asParagraph().setLineSpacing(1.4);
 
   section('4. 담당 사역자 확인');
   table([
-    ['패밀리 담당 사역자', app.minister],
-    ['지원 사실 알림', '☑ 네, 알렸어요']
-  ], 110);
+    ['패밀리 담당 사역자', app.minister, '지원 사실 알림', '☑ 네, 알렸어요']
+  ], 100);
 
   section('5. 개인정보 수집·이용 동의');
   table([
@@ -284,27 +307,37 @@ function createPdf_(app, receiptNo, now) {
   ], 90);
 
   var pledge = body.appendParagraph('위 기재 사항이 사실과 다름없음을 확인하며, 인투마케팅 영상분야 훈련생으로 지원합니다.');
-  pledge.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(22);
-  pledge.editAsText().setFontSize(10).setBold(false).setForegroundColor('#1a1d29');
+  pledge.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(pt(16));
+  pledge.editAsText().setFontSize(pt(10)).setBold(false).setForegroundColor('#1a1d29');
 
   var date = body.appendParagraph(Utilities.formatDate(now, TIMEZONE, 'yyyy년 M월 d일'));
-  date.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(14);
-  date.editAsText().setFontSize(11).setBold(false);
+  date.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(pt(8));
+  date.editAsText().setFontSize(pt(11)).setBold(false);
 
   var sign = body.appendParagraph('지원자  ' + app.name + '   (서명)');
-  sign.setAlignment(DocumentApp.HorizontalAlignment.RIGHT).setSpacingBefore(16);
-  sign.editAsText().setFontSize(11).setBold(false);
+  sign.setAlignment(DocumentApp.HorizontalAlignment.RIGHT).setSpacingBefore(pt(8));
+  sign.editAsText().setFontSize(pt(11)).setBold(false);
 
   var to = body.appendParagraph('인투마케팅 귀중');
-  to.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(26);
-  to.editAsText().setFontSize(15).setBold(true).setForegroundColor(NAVY);
+  to.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(pt(14));
+  to.editAsText().setFontSize(pt(15)).setBold(true).setForegroundColor(NAVY);
+
+  // 표 뒤에 문서가 자동으로 넣는 빈 줄을 납작하게 만든다
+  var tiny = {};
+  tiny[DocumentApp.Attribute.FONT_SIZE] = 1;
+  for (var i = 0; i < body.getNumChildren(); i++) {
+    var el = body.getChild(i);
+    if (el.getType() === DocumentApp.ElementType.PARAGRAPH && el.asParagraph().getText() === '') {
+      el.asParagraph().setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1).setAttributes(tiny);
+    }
+  }
 
   doc.saveAndClose();
 
   var docFile = DriveApp.getFileById(doc.getId());
-  var pdf = getFolder_().createFile(docFile.getAs(MimeType.PDF).setName(title + '.pdf'));
+  var blob = docFile.getAs(MimeType.PDF);
   docFile.setTrashed(true); // PDF로 만든 뒤 임시 문서는 휴지통으로
-  return pdf;
+  return blob;
 }
 
 /* ---------- 이메일 ---------- */
