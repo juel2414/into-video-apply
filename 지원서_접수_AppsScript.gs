@@ -212,8 +212,8 @@ function createPdf_(app, receiptNo, now) {
   body.setAttributes(base);
 
   var no = body.getParagraphs()[0];
-  no.setText('접수 번호  ' + receiptNo)
-    .setAlignment(DocumentApp.HorizontalAlignment.RIGHT)
+  no.setText('접수 번호  ' + receiptNo); // setText는 아무것도 돌려주지 않아 이어 쓸 수 없다
+  no.setAlignment(DocumentApp.HorizontalAlignment.RIGHT)
     .editAsText().setFontSize(8).setForegroundColor('#6b7088');
 
   var h = body.appendParagraph('지 원 서');
